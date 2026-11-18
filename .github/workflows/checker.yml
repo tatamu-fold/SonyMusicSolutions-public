@@ -1,0 +1,50 @@
+name: checker
+
+on:
+  schedule:
+    - cron: '31 10 * * *'
+  workflow_dispatch:  # Only triggered by dispatch (from scheduled-trigger or manually)
+
+concurrency:
+  group: sms-serial-global     # any constant string => single global queue for workflow
+  cancel-in-progress: false    # do NOT cancel; queue instead
+
+jobs:
+  checker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone Private Repo
+        env:
+          PAT_GITHUB: ${{ secrets.PAT_GITHUB }}
+        run: |
+          git clone https://x-access-token:${PAT_GITHUB}@github.com/tatamu-fold/SonyMusicSolutions.git
+          cd SonyMusicSolutions
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.15'
+          
+      - name: Install Dependencies
+        run: |
+          cd SonyMusicSolutions
+          pip install bs4 requests
+
+      - name: Run Checker
+        run: |
+          cd SonyMusicSolutions
+          python SonyMusicSolutions.py
+
+      - name: Commit and Push Changes
+        run: |
+          cd SonyMusicSolutions
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add data.json
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "Update sent IDs - $(date)"
+            git push
+            echo "Changes committed and pushed."
+          else
+            echo "No changes to commit."
+          fi
