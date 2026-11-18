@@ -28,7 +28,7 @@ jobs:
       - name: Install Dependencies
         run: |
           cd SonyMusicSolutions
-          pip install bs4 requests
+          pip install requests
 
       - name: Run Checker
         run: |
@@ -40,9 +40,9 @@ jobs:
           cd SonyMusicSolutions
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add data.json
+          git add redirected.json
           if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "Update sent IDs - $(date)"
+            git commit -m "Update redirected.json"
             git push
             echo "Changes committed and pushed."
           else
