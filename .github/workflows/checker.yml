@@ -29,6 +29,8 @@ jobs:
         run: |
           cd SonyMusicSolutions
           pip install requests
+          pip install playwright
+          playwright install chromium
 
       - name: Run Checker
         run: |
